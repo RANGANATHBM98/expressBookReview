@@ -1,44 +1,78 @@
 const express = require('express');
+const axios = require('axios');
+
 let router = express.Router();
-let books = require('../data/booksdb.js');
+const BASE_URL = "http://localhost:5000/books";
 
 // Get all books
-router.get('/', (req, res) => {
-    return res.json(books);
+router.get('/', async (req, res) => {
+    try {
+        const response = await axios.get(BASE_URL);
+        return res.status(200).json(response.data);
+    } catch (error) {
+        return res.status(500).json({ message: "Error fetching books" });
+    }
 });
 
 // Get book by ISBN
-router.get('/isbn/:isbn', (req, res) => {
+router.get('/isbn/:isbn', async (req, res) => {
     const isbn = req.params.isbn;
-    return res.json(books[isbn]);
+    try {
+        const response = await axios.get(`${BASE_URL}`);
+        const book = response.data[isbn];
+
+        if (book) {
+            return res.status(200).json(book);
+        } else {
+            return res.status(404).json({ message: "Book not found" });
+        }
+    } catch (error) {
+        return res.status(500).json({ message: "Error fetching book" });
+    }
 });
 
 // Get books by author
-router.get('/author/:author', (req, res) => {
+router.get('/author/:author', async (req, res) => {
     const author = req.params.author;
 
-    const filtered = Object.values(books).filter(
-        book => book.author.toLowerCase() === author.toLowerCase()
-    );
+    try {
+        const response = await axios.get(BASE_URL);
+        const books = Object.values(response.data);
 
-    return res.json(filtered);
+        const filtered = books.filter(
+            book => book.author.toLowerCase() === author.toLowerCase()
+        );
+
+        if (filtered.length > 0) {
+            return res.status(200).json(filtered);
+        } else {
+            return res.status(404).json({ message: "No books found" });
+        }
+    } catch (error) {
+        return res.status(500).json({ message: "Error fetching books" });
+    }
 });
 
 // Get books by title
-router.get('/title/:title', (req, res) => {
+router.get('/title/:title', async (req, res) => {
     const title = req.params.title;
 
-    const filtered = Object.values(books).filter(
-        book => book.title.toLowerCase() === title.toLowerCase()
-    );
+    try {
+        const response = await axios.get(BASE_URL);
+        const books = Object.values(response.data);
 
-    return res.json(filtered);
-});
+        const filtered = books.filter(
+            book => book.title.toLowerCase() === title.toLowerCase()
+        );
 
-// Get book review
-router.get('/review/:isbn', (req, res) => {
-    const isbn = req.params.isbn;
-    return res.json(books[isbn].reviews);
+        if (filtered.length > 0) {
+            return res.status(200).json(filtered);
+        } else {
+            return res.status(404).json({ message: "No books found" });
+        }
+    } catch (error) {
+        return res.status(500).json({ message: "Error fetching books" });
+    }
 });
 
 module.exports = router;
