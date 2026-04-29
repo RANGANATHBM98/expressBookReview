@@ -14,15 +14,16 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Get book by ISBN
+// Get book by ISBN (FIXED)
 router.get('/isbn/:isbn', async (req, res) => {
     const isbn = req.params.isbn;
-    try {
-        const response = await axios.get(`${BASE_URL}`);
-        const book = response.data[isbn];
 
-        if (book) {
-            return res.status(200).json(book);
+    try {
+        const response = await axios.get(BASE_URL);
+        const books = response.data;
+
+        if (books[isbn]) {
+            return res.status(200).json(books[isbn]);
         } else {
             return res.status(404).json({ message: "Book not found" });
         }
@@ -46,7 +47,7 @@ router.get('/author/:author', async (req, res) => {
         if (filtered.length > 0) {
             return res.status(200).json(filtered);
         } else {
-            return res.status(404).json({ message: "No books found" });
+            return res.status(404).json({ message: "No books found for this author" });
         }
     } catch (error) {
         return res.status(500).json({ message: "Error fetching books" });
@@ -68,7 +69,7 @@ router.get('/title/:title', async (req, res) => {
         if (filtered.length > 0) {
             return res.status(200).json(filtered);
         } else {
-            return res.status(404).json({ message: "No books found" });
+            return res.status(404).json({ message: "No books found with this title" });
         }
     } catch (error) {
         return res.status(500).json({ message: "Error fetching books" });
