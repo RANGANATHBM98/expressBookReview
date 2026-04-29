@@ -5,15 +5,17 @@ const generalRoutes = require('./routes/general');
 const authRoutes = require('./routes/auth_users');
 
 const app = express();
+
+// Middleware
 app.use(bodyParser.json());
 
 // Routes
 app.use('/books', generalRoutes);
 app.use('/customer', authRoutes);
 
-// Default
+// Health check route
 app.get('/', (req, res) => {
-    res.send("Book Review API running");
+    res.status(200).send("Book Review API is running");
 });
 
 // Start server
